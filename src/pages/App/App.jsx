@@ -1,17 +1,32 @@
 import React, { Component } from "react";
-import { Route } from "react-router-dom";
+import { Route, Redirect } from "react-router-dom";
 import NavBar from "../../components/NavBar/NavBar";
 import Signup from "../Signup/Signup";
 import Login from "../Login/Login";
+import Users from "../Users/Users";
+import authService from "../../services/authService";
 import "./App.css";
 
 class App extends Component {
-  state = {};
+  state = {
+    user: authService.getUser(),
+  };
+
+  handleLogout = () => {
+    authService.logout();
+    this.setState({ user: null });
+    this.props.history.push("/");
+  };
+
+  handleSignupOrLogin = () => {
+    this.setState({ user: authService.getUser() });
+  };
 
   render() {
+    const { user } = this.state
     return (
       <>
-        <NavBar user={this.state.user} />
+        <NavBar user={user} handleLogout={this.handleLogout} />
         <Route
           exact
           path="/"
@@ -27,6 +42,7 @@ class App extends Component {
           render={({ history }) => (
             <Signup
               history={history}
+              handleSignupOrLogin={this.handleSignupOrLogin}
             />
           )}
         />
@@ -36,8 +52,14 @@ class App extends Component {
           render={({ history }) => (
             <Login
               history={history}
+              handleSignupOrLogin={this.handleSignupOrLogin}
             />
           )}
+        />
+        <Route
+          exact
+          path="/users"
+          render={() => (user ? <Users /> : <Redirect to="/login" />)}
         />
       </>
     );

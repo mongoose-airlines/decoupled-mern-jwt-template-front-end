@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import authService from "../../services/authService";
 
 class Login extends Component {
   state = {
@@ -14,7 +15,16 @@ class Login extends Component {
   };
 
   handleSubmit = async (e) => {
+    const { history, handleSignupOrLogin } = this.props;
     e.preventDefault();
+    try {
+      await authService.login(this.state);
+      handleSignupOrLogin();
+      history.push("/");
+    } catch (err) {
+      // Use a modal or toast in your apps instead of alert
+      alert('Invalid Credentials!');
+    }
   };
 
   render() {
